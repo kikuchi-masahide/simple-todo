@@ -9,4 +9,8 @@ class AuthService extends ChangeNotifier {
   Future<String> login(String email, String password) {
     return _dbProxy.login(email, password);
   }
+
+  Future<String> register(String email, String password) {
+    return _dbProxy.register(email, password);
+  }
 }

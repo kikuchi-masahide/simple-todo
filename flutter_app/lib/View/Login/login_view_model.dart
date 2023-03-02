@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/service/auth_service.dart';
+import 'package:flutter_app/view/register/register_view_provider.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final AuthService _authService;
@@ -31,6 +32,12 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
     }
     //tokenを用いたページ遷移処理
+    return;
+  }
+
+  Future<void> onRegisterPressed(BuildContext context) async {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => RegisterViewProvider()));
     return;
   }
 

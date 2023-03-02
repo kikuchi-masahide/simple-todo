@@ -9,7 +9,7 @@ class LocalDB extends DBProxy {
 
   @override
   Future<String> login(String email, String password) async {
-    final fileStr = await _getFile('local_db/users.json');
+    final fileStr = await _readFile('local_db/users.json');
     final fileObj = jsonDecode(fileStr) as List;
     for (Map userData in fileObj) {
       if (userData['email'] == email) {
@@ -24,22 +24,55 @@ class LocalDB extends DBProxy {
     throw const FormatException('メールアドレスが登録されていません');
   }
 
-  ///ディレクトリからのパスで指定したファイルの内容を読み込む
-  Future<String> _getFile(String filepath) async {
+  @override
+  Future<String> register(String email, String password) async {
+    final fileStr = await _readFile('local_db/users.json');
+    final fileObj = jsonDecode(fileStr) as List;
+    int unusedID = 0;
+    for (Map userData in fileObj) {
+      if (userData['email'] == email) {
+        throw const FormatException('登録ずみのメールアドレスです');
+      }
+      if (unusedID <= userData['id']) {
+        unusedID = userData['id'] + 1;
+      }
+    }
+    fileObj.add({
+      'id': unusedID,
+      'email': email,
+      'password': password,
+    });
+    await _writeFile('local_db/users.json', fileObj);
+    return await _addToken(unusedID);
+  }
+
+  ///ディレクトリからのパスで指定したファイルのオブジェクトFILEを作成
+  Future<File> _getFile(String filepath) async {
     final Directory directory = await getApplicationDocumentsDirectory();
     final File file = File('${directory.path}/$filepath');
+    return file;
+  }
+
+  ///ディレクトリからのパスで指定したファイルの内容を読み込む
+  Future<String> _readFile(String filepath) async {
+    final File file = await _getFile(filepath);
     return await file.readAsString();
+  }
+
+  ///ディレクトリからのパスで指定したファイルにオブジェクトのJSONエンコードを書き込む
+  Future<void> _writeFile(String filepath, Object obj) async {
+    final File file = await _getFile(filepath);
+    file.writeAsStringSync(jsonEncode(obj));
+    return;
   }
 
   ///指定IDのユーザーのトークンを作成しtokens.jsonに追加、そのトークンを返す
   Future<String> _addToken(int id) async {
     final String token = _createRandomToken();
-    final Directory directory = await getApplicationDocumentsDirectory();
-    final File file = File('${directory.path}/local_db/tokens.json');
-    final String file_str = file.readAsStringSync();
-    final Map tokenMap = jsonDecode(file_str) as Map<String, dynamic>;
+    final String fileStr = await _readFile('local_db/tokens.json');
+    final Map tokenMap = jsonDecode(fileStr) as Map<String, dynamic>;
     tokenMap[token] = id;
-    file.writeAsStringSync(jsonEncode(tokenMap));
+    await _writeFile('local_db/tokens.json', tokenMap);
     return token;
   }
 
