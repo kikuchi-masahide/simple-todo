@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Model/DB/db_proxy.dart';
+import 'package:flutter_app/model/db/db_proxy.dart';
 
 class AuthService extends ChangeNotifier {
   final DBProxy _dbProxy;

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter_app/Model/DB/db_proxy.dart';
+import 'package:flutter_app/model/db/db_proxy.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
