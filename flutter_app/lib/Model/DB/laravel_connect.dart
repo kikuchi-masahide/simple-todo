@@ -1,28 +1,54 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:http/http.dart' as http;
 
 mixin LaravelConnect {
-  Future<Object> post(String host, String path, Object obj) async {
-    var http = HttpClient();
+  Future<dynamic> post(
+      String host, String path, Object obj, String? token) async {
     try {
-      HttpClientRequest request = await http.post(host, 80, path);
-      final reqBody = jsonEncode(obj);
-      request.headers.contentType = ContentType('application', 'json');
-      request.write(reqBody);
-      HttpClientResponse response = await request.close();
-      if (response.statusCode != 200 && response.statusCode != 400) {
-        throw const FormatException('ネットワークエラー');
+      var uri = Uri.http(host, path);
+      Map<String, String> header = {
+        'Content-Type': 'application/json',
+      };
+      if (token != null) {
+        header["Authorization"] = 'Bearer $token';
       }
-      final resBodyStr = await response.transform(utf8.decoder).join();
-      final Object resBody = jsonDecode(resBodyStr);
-      if (response.statusCode == 400) {
-        throw FormatException('ネットワークエラー:${(resBody as Map)["message"]}');
+      var response =
+          await http.post(uri, headers: header, body: jsonEncode(obj));
+      var status = response.statusCode;
+      var body = jsonDecode(utf8.decode(response.bodyBytes));
+      if (status != 200) {
+        if (status == 400) {
+          throw FormatException(body["message"]);
+        } else {
+          throw FormatException('ネットワークエラー ステータスコード$status');
+        }
       }
-      return resBody;
-    } on FormatException catch (_) {
+      return body;
+    } catch (e) {
       rethrow;
-    } on Exception catch (_) {
-      throw const FormatException('ネットワークエラー');
+    }
+  }
+
+  Future<dynamic> get(String host, String path, String? token) async {
+    try {
+      var uri = Uri.http(host, path);
+      Map<String, String> header = {};
+      if (token != null) {
+        header["Authorization"] = 'Bearer $token';
+      }
+      var response = await http.get(uri, headers: header);
+      var status = response.statusCode;
+      var body = jsonDecode(utf8.decode(response.bodyBytes));
+      if (status != 200) {
+        if (status == 400) {
+          throw FormatException(body["message"]);
+        } else {
+          throw FormatException('ネットワークエラー ステータスコード$status');
+        }
+      }
+      return body;
+    } catch (e) {
+      rethrow;
     }
   }
 }

@@ -14,5 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/login',[App\Http\Controllers\UserController::class,"UserLogin"]);
-Route::post('/register',[App\Http\Controllers\UserController::class,"UserRegister"]);
+Route::post('/login', [App\Http\Controllers\UserController::class, "UserLogin"]);
+Route::post('/register', [App\Http\Controllers\UserController::class, "UserRegister"]);
+
+Route::middleware(App\Http\Middleware\OriginalAuth::class)->group(function () {
+    Route::get('/index', [App\Http\Controllers\TaskController::class, 'index']);
+});
