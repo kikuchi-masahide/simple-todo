@@ -9,8 +9,10 @@ class HomeViewProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     var taskDataService =
         ModalRoute.of(context)!.settings.arguments as TaskDataService;
-    return ChangeNotifierProvider(
-      create: (_) => HomeViewModel(taskDataService),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => HomeViewModel(taskDataService)),
+      ],
       child: HomeView(),
     );
   }

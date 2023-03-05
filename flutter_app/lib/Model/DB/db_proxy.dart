@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/model/types/Task.dart';
 
-abstract class DBProxy with ChangeNotifier {
+abstract class DBProxy extends ChangeNotifier{
   Future<String> login(String email, String password);
   Future<String> register(String email, String password);
+  Future<List<Task>> getAllTasks(String token);
 }

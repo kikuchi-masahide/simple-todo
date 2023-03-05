@@ -1,12 +1,13 @@
 import 'dart:math';
+import 'package:flutter_app/model/types/Task.dart';
 import 'package:flutter_app/model/types/token.dart';
 import 'package:flutter_app/model/types/user.dart';
 import 'package:flutter_app/model/db/db_proxy.dart';
 import 'package:flutter_app/model/db/local_file_io.dart';
 
 class LocalDB extends DBProxy with LocalFileIO {
-  //static const _tokenLifespan = const Duration(minutes: 1);
-  static const _tokenLifespan = const Duration(days: 1);
+  static const _tokenLifespan = const Duration(minutes: 1);
+  // static const _tokenLifespan = const Duration(days: 1);
 
   LocalDB();
 
@@ -44,6 +45,13 @@ class LocalDB extends DBProxy with LocalFileIO {
     return await _addToken(unusedID);
   }
 
+  @override
+  Future<List<Task>> getAllTasks(String token) async {
+    final id = await _getUserIDFromToken(token);
+    final tasks = await _readUserTasksFile(id);
+    return tasks;
+  }
+
   Future<List<User>> _readUsersFile() async {
     final fileObj = await readFile('local_db/users.json') as List;
     return fileObj.map<User>((json) => User.fromJson(json)).toList();
@@ -52,10 +60,8 @@ class LocalDB extends DBProxy with LocalFileIO {
   Future<Map<String, Token>> _readTokensFile() async {
     final tokenMap =
         await readFile('local_db/tokens.json') as Map<String, dynamic>;
-    Map<String, Token> tokens = {};
-    tokenMap.forEach((key, value) {
-      tokens[key] = Token.fromJson(value);
-    });
+    final tokens =
+        tokenMap.map((key, value) => MapEntry(key, Token.fromJson(value)));
     return tokens;
   }
 
@@ -74,5 +80,23 @@ class LocalDB extends DBProxy with LocalFileIO {
     const charset = '0123456789abcdefghijklmnopqrstuvwxyz';
     final Random random = Random.secure();
     return List.generate(32, (_) => charset[random.nextInt(20)]).join();
+  }
+
+  Future<int> _getUserIDFromToken(String token) async {
+    final tokensMap = await _readTokensFile();
+    if (tokensMap[token] == null) {
+      throw const FormatException('無効なトークンです');
+    }
+    if (tokensMap[token]!.limit.isBefore(DateTime.now())) {
+      throw const FormatException('有効期限切れのトークンです');
+    }
+    return tokensMap[token]!.id;
+  }
+
+  Future<List<Task>> _readUserTasksFile(int id) async {
+    //List<Task>
+    final fileObj = await readFile('local_db/$id.json') as List;
+    final tasks = fileObj.map((e) => Task.fromJson(e)).toList();
+    return tasks;
   }
 }

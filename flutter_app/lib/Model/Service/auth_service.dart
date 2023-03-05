@@ -9,11 +9,11 @@ class AuthService extends ChangeNotifier {
 
   Future<TaskDataService> login(String email, String password) async {
     final token = await _dbProxy.login(email, password);
-    return TaskDataService(token);
+    return TaskDataService(token, _dbProxy);
   }
 
   Future<TaskDataService> register(String email, String password) async {
     final token = await _dbProxy.register(email, password);
-    return TaskDataService(token);
+    return TaskDataService(token, _dbProxy);
   }
 }

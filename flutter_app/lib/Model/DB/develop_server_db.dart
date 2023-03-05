@@ -1,5 +1,6 @@
 import 'package:flutter_app/model/db/db_proxy.dart';
 import 'package:flutter_app/model/db/laravel_connect.dart';
+import 'package:flutter_app/model/types/Task.dart';
 
 class DevelopServerDB extends DBProxy with LaravelConnect {
   static const _host = 'localhost';
@@ -26,5 +27,10 @@ class DevelopServerDB extends DBProxy with LaravelConnect {
     final resObj =
         await post(_host, _registerPath, reqObj) as Map<String, dynamic>;
     return resObj["token"] as String;
+  }
+
+  @override
+  Future<List<Task>> getAllTasks(String token) async {
+    return [];
   }
 }
