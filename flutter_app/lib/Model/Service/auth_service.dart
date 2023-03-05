@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/db/db_proxy.dart';
+import 'package:flutter_app/model/service/task_data_service.dart';
 
 class AuthService extends ChangeNotifier {
   final DBProxy _dbProxy;
 
   AuthService(this._dbProxy);
 
-  Future<String> login(String email, String password) {
-    return _dbProxy.login(email, password);
+  Future<TaskDataService> login(String email, String password) async {
+    final token = await _dbProxy.login(email, password);
+    return TaskDataService(token);
   }
 
-  Future<String> register(String email, String password) {
-    return _dbProxy.register(email, password);
+  Future<TaskDataService> register(String email, String password) async {
+    final token = await _dbProxy.register(email, password);
+    return TaskDataService(token);
   }
 }

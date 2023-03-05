@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/service/auth_service.dart';
+import 'package:flutter_app/model/service/task_data_service.dart';
 
 class RegisterViewModel extends ChangeNotifier {
   final AuthService _authService;
@@ -15,23 +16,20 @@ class RegisterViewModel extends ChangeNotifier {
     _message = null;
   }
 
-  Future<void> register(
+  Future<TaskDataService?> register(
       BuildContext context, String email, String password) async {
     _registerProcessing = true;
     notifyListeners();
     try {
-      final String token = await _authService.register(email, password);
-      _message = '登録に成功しました';
+      final service = await _authService.register(email, password);
+      return service;
     } on FormatException catch (e) {
       _message = '''登録に失敗しました
 エラー:${e.message}''';
-    } finally {
       _registerProcessing = false;
       notifyListeners();
+      return null;
     }
-
-    ///ホーム画面への遷移
-    return;
   }
 
   bool get registerProcessing => _registerProcessing;

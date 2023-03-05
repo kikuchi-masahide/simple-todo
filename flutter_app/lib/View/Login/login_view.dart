@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/model/service/task_data_service.dart';
 import 'package:flutter_app/view/component/box_alert.dart';
 import 'package:flutter_app/view/component/normal_button.dart';
 import 'package:flutter_app/view/component/normal_text_field.dart';
@@ -53,7 +54,13 @@ class LoginView extends StatelessWidget {
   void _onLoginPressed(BuildContext context) async {
     await context
         .read<LoginViewModel>()
-        .login(context, _emailController.text, _passwordController.text);
+        .login(context, _emailController.text, _passwordController.text)
+        //LoginViewModel::loginでNavigator.pushNamedしようとすると怒られるので
+        .then((TaskDataService? service) {
+      if (service != null) {
+        Navigator.pushReplacementNamed(context, '/home', arguments: service);
+      }
+    });
   }
 
   void _onRegisterPressed(BuildContext context) async {

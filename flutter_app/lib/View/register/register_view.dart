@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/model/service/task_data_service.dart';
 import 'package:flutter_app/view/component/box_alert.dart';
 import 'package:flutter_app/view/component/normal_button.dart';
 import 'package:flutter_app/view/component/normal_text_field.dart';
+import 'package:flutter_app/view/login/login_view_provider.dart';
 import 'package:flutter_app/view/register/register_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -50,6 +52,12 @@ class RegisterView extends StatelessWidget {
   void _onRegisterPressed(BuildContext context) async {
     await context
         .read<RegisterViewModel>()
-        .register(context, _emailController.text, _passwordController.text);
+        .register(context, _emailController.text, _passwordController.text)
+        .then((TaskDataService? service) {
+      if (service != null) {
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,
+            arguments: service);
+      }
+    });
   }
 }
