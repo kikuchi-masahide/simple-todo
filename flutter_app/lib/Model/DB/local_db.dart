@@ -1,20 +1,22 @@
-import 'dart:convert';
 import 'dart:math';
+import 'package:flutter_app/model/types/token.dart';
+import 'package:flutter_app/model/types/user.dart';
 import 'package:flutter_app/model/db/db_proxy.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:flutter_app/model/db/local_file_io.dart';
 
-class LocalDB extends DBProxy {
+class LocalDB extends DBProxy with LocalFileIO {
+  //static const _tokenLifespan = const Duration(minutes: 1);
+  static const _tokenLifespan = const Duration(days: 1);
+
   LocalDB();
 
   @override
   Future<String> login(String email, String password) async {
-    final fileStr = await _readFile('local_db/users.json');
-    final fileObj = jsonDecode(fileStr) as List;
-    for (Map userData in fileObj) {
-      if (userData['email'] == email) {
-        if (userData['password'] == password) {
-          final String token = await _addToken(userData['id']);
+    var users = await _readUsersFile();
+    for (var user in users) {
+      if (user.email == email) {
+        if (user.password == password) {
+          final String token = await _addToken(user.id);
           return token;
         } else {
           throw const FormatException('パスワードが異なります');
@@ -26,53 +28,45 @@ class LocalDB extends DBProxy {
 
   @override
   Future<String> register(String email, String password) async {
-    final fileStr = await _readFile('local_db/users.json');
-    final fileObj = jsonDecode(fileStr) as List;
+    var users = await _readUsersFile();
     int unusedID = 0;
-    for (Map userData in fileObj) {
-      if (userData['email'] == email) {
+    for (User user in users) {
+      if (user.email == email) {
         throw const FormatException('登録ずみのメールアドレスです');
       }
-      if (unusedID <= userData['id']) {
-        unusedID = userData['id'] + 1;
+      if (unusedID <= user.id) {
+        unusedID = user.id + 1;
       }
     }
-    fileObj.add({
-      'id': unusedID,
-      'email': email,
-      'password': password,
-    });
-    await _writeFile('local_db/users.json', fileObj);
+    User newuser = User(unusedID, email, password);
+    users.add(newuser);
+    await writeFile('local_db/users.json', users);
     return await _addToken(unusedID);
   }
 
-  ///ディレクトリからのパスで指定したファイルのオブジェクトFILEを作成
-  Future<File> _getFile(String filepath) async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    final File file = File('${directory.path}/$filepath');
-    return file;
+  Future<List<User>> _readUsersFile() async {
+    final fileObj = await readFile('local_db/users.json') as List;
+    return fileObj.map<User>((json) => User.fromJson(json)).toList();
   }
 
-  ///ディレクトリからのパスで指定したファイルの内容を読み込む
-  Future<String> _readFile(String filepath) async {
-    final File file = await _getFile(filepath);
-    return await file.readAsString();
-  }
-
-  ///ディレクトリからのパスで指定したファイルにオブジェクトのJSONエンコードを書き込む
-  Future<void> _writeFile(String filepath, Object obj) async {
-    final File file = await _getFile(filepath);
-    file.writeAsStringSync(jsonEncode(obj));
-    return;
+  Future<Map<String, Token>> _readTokensFile() async {
+    final tokenMap =
+        await readFile('local_db/tokens.json') as Map<String, dynamic>;
+    Map<String, Token> tokens = {};
+    tokenMap.forEach((key, value) {
+      tokens[key] = Token.fromJson(value);
+    });
+    return tokens;
   }
 
   ///指定IDのユーザーのトークンを作成しtokens.jsonに追加、そのトークンを返す
   Future<String> _addToken(int id) async {
     final String token = _createRandomToken();
-    final String fileStr = await _readFile('local_db/tokens.json');
-    final Map tokenMap = jsonDecode(fileStr) as Map<String, dynamic>;
-    tokenMap[token] = id;
-    await _writeFile('local_db/tokens.json', tokenMap);
+    final DateTime limit = DateTime.now().add(_tokenLifespan);
+    //Map<String,Token>
+    final tokens = await _readTokensFile();
+    tokens[token] = Token(token, id, limit);
+    await writeFile('local_db/tokens.json', tokens);
     return token;
   }
 
