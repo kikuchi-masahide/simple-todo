@@ -29,7 +29,7 @@ class TaskDataService {
   ///全Task eのコピーに対して木構造の深さ優先でfunc(e)を実行
   ///返り値がfalseの場合、子に対し実行を行わない
   void iterateTaskTrees(bool Function(Task) func) {
-    _trees.iterate((id) => func(_copy(_tasks[id] as Task)));
+    _trees.iterate(func);
   }
 
   //このIDのタスクが子を持つか
@@ -41,9 +41,7 @@ class TaskDataService {
     return Task(t.id, t.title, t.limit, t.parentId, t.done);
   }
 
-  int _limitAscSort(int p0, int p1) {
-    var task0 = _tasks[p0] as Task;
-    var task1 = _tasks[p1] as Task;
+  int _limitAscSort(Task task0, Task task1) {
     var limit0 = task0.limit;
     var limit1 = task1.limit;
     if (limit0 != null) {

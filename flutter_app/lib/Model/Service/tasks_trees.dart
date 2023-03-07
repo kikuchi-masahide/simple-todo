@@ -36,7 +36,7 @@ class TasksTrees {
         var id = q.removeFirst();
         var t = tasks[id] as Task;
         var par = _elems[t.parentId];
-        var elem = TreeElement(id, par);
+        var elem = TreeElement(t, par);
         _elems[id] = elem;
         if (par == null) {
           _roots.add(elem);
@@ -48,27 +48,27 @@ class TasksTrees {
   }
 
   //指定したファンクタで子を昇順ソート(a < b <==> functor(a,b)  < 0)
-  void sortWith(int Function(int, int) functor) {
-    _roots.sort((a, b) => functor(a.id, b.id));
+  void sortWith(int Function(Task, Task) functor) {
+    _roots.sort((a, b) => functor(a.task, b.task));
     //この頂点の子をソート
     Queue<TreeElement> q = Queue();
     q.addAll(_roots);
     while (q.isNotEmpty) {
       var e = q.removeFirst();
-      e.childs.sort((a, b) => functor(a.id, b.id));
+      e.childs.sort((a, b) => functor(a.task, b.task));
       q.addAll(e.childs);
     }
   }
 
   ///全頂点eに対して深さ優先でfunc(e.id)を実行
   ///返り値がfalseの場合、子に対し実行を行わない
-  void iterate(bool Function(int) func) {
+  void iterate(bool Function(Task) func) {
     //スタックとして利用
     Queue<TreeElement> q = Queue();
     q.addAll(_roots.reversed);
     while (q.isNotEmpty) {
       var e = q.removeLast();
-      if (func(e.id)) {
+      if (func(e.task)) {
         q.addAll(e.childs.reversed);
       }
     }

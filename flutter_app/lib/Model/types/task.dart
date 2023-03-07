@@ -11,4 +11,10 @@ class Task {
         limit = (json["limit"] != null ? DateTime.parse(json["limit"]) : null),
         parentId = json["parent_id"],
         done = json["done"] ?? false;
+  Task.copy(Task task)
+      : id = task.id,
+        title = task.title,
+        limit = task.limit,
+        parentId = task.parentId,
+        done = task.done;
 }
