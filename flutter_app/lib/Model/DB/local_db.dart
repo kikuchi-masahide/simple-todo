@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:flutter_app/model/types/Task.dart';
+import 'package:flutter_app/model/types/task.dart';
 import 'package:flutter_app/model/types/token.dart';
 import 'package:flutter_app/model/types/user.dart';
 import 'package:flutter_app/model/db/db_proxy.dart';

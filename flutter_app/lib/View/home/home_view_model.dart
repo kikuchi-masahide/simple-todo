@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/service/task_data_service.dart';
-import 'package:flutter_app/model/types/Task.dart';
+import 'package:flutter_app/model/types/tasks_scroll_list_item_info.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final TaskDataService _taskDataService;
@@ -17,7 +17,13 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  List<Task> getReadonlyTasksList() {
-    return _taskDataService.getReadonlyTasksList();
+  List<TasksScrollListItemInfo> getTasksScrollListItemInfos() {
+    List<TasksScrollListItemInfo> ret = [];
+    _taskDataService.iterateTaskTrees((task) {
+      ret.add(TasksScrollListItemInfo(
+          task.id, task.title, task.done, 0, TasksScrollListItemExpand.yes));
+      return true;
+    });
+    return ret;
   }
 }
