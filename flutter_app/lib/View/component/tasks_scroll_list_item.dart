@@ -5,16 +5,7 @@ import 'package:flutter_app/view/home/home_view_model.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class TasksScrollListItem extends StatefulWidget {
-  final TasksScrollListItemInfo _info;
-
-  const TasksScrollListItem(this._info, {super.key});
-
-  @override
-  _TasksScrollListItemState createState() => _TasksScrollListItemState(_info);
-}
-
-class _TasksScrollListItemState extends State<TasksScrollListItem> {
+class TasksScrollListItem extends StatelessWidget {
   final TasksScrollListItemInfo _info;
   static const _paddingPerDepth = 20.0;
   static const _expandIconYes = Icons.expand_more;
@@ -25,7 +16,7 @@ class _TasksScrollListItemState extends State<TasksScrollListItem> {
   static const _taskLimitFontSize = 15.0;
   static const _taskLimitColor = Colors.grey;
 
-  _TasksScrollListItemState(this._info);
+  const TasksScrollListItem(this._info, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,19 +24,19 @@ class _TasksScrollListItemState extends State<TasksScrollListItem> {
       Checkbox(
         value: context.select(
             (HomeViewModel model) => model.getTaskCheckboxValue(_info.id)),
-        onChanged: _onCheckboxChanged,
+        onChanged: _onCheckboxChanged(context),
       ),
       Padding(padding: EdgeInsets.only(left: _paddingPerDepth * _info.depth)),
     ];
-    var iconData = _getExpandIconData();
+    var iconData = _getExpandIconData(context);
     if (iconData != null) {
       children.add(GestureDetector(
-        onTap: _onExpandTapped,
+        onTap: _onExpandTapped(context),
         child: Icon(iconData),
       ));
     }
     children.add(GestureDetector(
-      onTap: _onTaskTapped,
+      onTap: _onTaskTapped(context),
       child: _getTaskTitleText(),
     ));
     var taskLimitText = _getTaskLimitText();
@@ -59,21 +50,27 @@ class _TasksScrollListItemState extends State<TasksScrollListItem> {
     );
   }
 
-  void _onCheckboxChanged(bool? v) {
-    context.read<HomeViewModel>().setTaskCheckboxValue(_info.id, v ?? false);
+  void Function(bool?) _onCheckboxChanged(BuildContext context) {
+    return (v) {
+      context.read<HomeViewModel>().setTaskCheckboxValue(_info.id, v ?? false);
+    };
   }
 
-  void _onExpandTapped() {
-    context.read<HomeViewModel>().onTasksScrollListItemExpandTapped(_info.id);
+  void Function() _onExpandTapped(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().onTasksScrollListItemExpandTapped(_info.id);
+    };
   }
 
-  void _onTaskTapped() {
-    context.read<HomeViewModel>().onTasksScrollListItemTapped(_info.id);
+  void Function() _onTaskTapped(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().onTasksScrollListItemTapped(_info.id);
+    };
   }
 
-  IconData? _getExpandIconData() {
+  IconData? _getExpandIconData(BuildContext context) {
     var expand =
-        context.watch<HomeViewModel>().getTasksScrollListItemExpand(_info.id);
+        context.read<HomeViewModel>().getTasksScrollListItemExpand(_info.id);
     if (expand == TasksScrollListItemExpand.yes) {
       return _expandIconYes;
     } else if (expand == TasksScrollListItemExpand.no) {
