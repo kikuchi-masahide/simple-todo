@@ -13,7 +13,12 @@ class TasksScrollList extends StatelessWidget {
         child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: _tasks.map((task) => TasksScrollListItem(task)).toList(),
+      children: _tasks
+          .map((task) => TasksScrollListItem(
+                task,
+                key: ValueKey(task),
+              ))
+          .toList(),
     ));
     return Container(
       alignment: Alignment.center,

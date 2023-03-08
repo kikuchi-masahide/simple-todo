@@ -6,12 +6,12 @@ import 'package:flutter_app/model/types/task.dart';
  * 単一のトークンに対するデータ処理
  */
 class TaskDataService {
-  String _token;
+  final String _token;
   final DBProxy _dbProxy;
 
   ///id => task
-  Map<int, Task> _tasks;
-  TasksTrees _trees;
+  final Map<int, Task> _tasks;
+  final TasksTrees _trees;
 
   TaskDataService(this._token, this._dbProxy)
       : _tasks = {},
@@ -26,9 +26,9 @@ class TaskDataService {
     _trees.sortWith(_limitAscSort);
   }
 
-  ///全Task eのコピーに対して木構造の深さ優先でfunc(e)を実行
+  ///全Task eのコピーに対して木構造の深さ優先でfunc(e,深さ)を実行
   ///返り値がfalseの場合、子に対し実行を行わない
-  void iterateTaskTrees(bool Function(Task) func) {
+  void iterateTaskTrees(bool Function(Task, int) func) {
     _trees.iterate(func);
   }
 
@@ -37,24 +37,43 @@ class TaskDataService {
     return _trees.hasChilds(id);
   }
 
-  Task _copy(Task t) {
-    return Task(t.id, t.title, t.limit, t.parentId, t.done);
+  //このタスクがタップされた(完了と非完了の入れ替え)時の処理
+  void onTaskDoneInvert(int id) {
+    var task = _tasks[id]!;
+    if (task.done) {
+      //自分と親のチェックを外していく
+      while (true) {
+        task.done = false;
+        var parentId = task.parentId;
+        if (parentId != null) {
+          task = _tasks[parentId]!;
+        } else {
+          break;
+        }
+      }
+    } else {
+      //子の側のチェック
+      var childs = _trees.doAllChildsSatisfy(id, (p0) => p0.done);
+      if (childs) {
+        task.done = true;
+      }
+    }
   }
 
   int _limitAscSort(Task task0, Task task1) {
-    var limit0 = task0.limit;
-    var limit1 = task1.limit;
-    if (limit0 != null) {
-      if (limit1 != null) {
+    var limit0 = task0.limit ?? DateTime(3000);
+    var limit1 = task1.limit ?? DateTime(3000);
+    if (limit0.isBefore(DateTime.now())) {
+      if (limit1.isBefore(DateTime.now())) {
         return limit0.compareTo(limit1);
       } else {
-        return -1;
+        return 1;
       }
     } else {
-      if (limit1 != null) {
-        return 1;
+      if (limit1.isBefore(DateTime.now())) {
+        return -1;
       } else {
-        return task0.id - task1.id;
+        return limit0.compareTo(limit1);
       }
     }
   }

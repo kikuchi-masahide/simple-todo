@@ -23,8 +23,8 @@ class HomeView extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TasksScrollList(context.select(
-                (HomeViewModel model) => model.getTasksScrollListItemInfos())),
+            TasksScrollList(
+                context.watch<HomeViewModel>().getTasksScrollListItemInfos()),
             const Padding(padding: EdgeInsets.all(10.0)),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter_app/model/types/task.dart';
 import 'package:flutter_app/model/types/tree_element.dart';
+import 'package:tuple/tuple.dart';
 
 ///Taskの森構造を管理するためのクラス IDのみ保持する
 class TasksTrees {
@@ -60,21 +61,40 @@ class TasksTrees {
     }
   }
 
-  ///全頂点eに対して深さ優先でfunc(e.id)を実行
+  ///全頂点eに対して深さ優先でfunc(e.id,深さ)を実行
   ///返り値がfalseの場合、子に対し実行を行わない
-  void iterate(bool Function(Task) func) {
-    //スタックとして利用
-    Queue<TreeElement> q = Queue();
-    q.addAll(_roots.reversed);
-    while (q.isNotEmpty) {
-      var e = q.removeLast();
-      if (func(e.task)) {
-        q.addAll(e.childs.reversed);
+  void iterate(bool Function(Task, int) func) {
+    //スタックとして利用 <要素、深さ>
+    Queue<Tuple2<TreeElement, int>> q = Queue();
+    for (var root in _roots) {
+      q.addFirst(Tuple2(root, 0));
+      while (q.isNotEmpty) {
+        var tuple = q.removeFirst();
+        var e = tuple.item1;
+        var depth = tuple.item2;
+        if (func(e.task, depth)) {
+          e.childs.reversed.forEach((element) {
+            q.addFirst(Tuple2(element, depth + 1));
+          });
+        }
       }
     }
   }
 
   bool hasChilds(int id) {
     return _elems[id]!.childs.isNotEmpty;
+  }
+
+  //この要素の全ての子が述語conditionを満たすか否か
+  bool doAllChildsSatisfy(int id, bool Function(Task) condition) {
+    var ret = true;
+    var par = _elems[id]!;
+    for (var ch in par.childs) {
+      if (!condition(ch.task)) {
+        ret = false;
+        break;
+      }
+    }
+    return ret;
   }
 }
