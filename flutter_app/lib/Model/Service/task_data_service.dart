@@ -1,4 +1,7 @@
+import 'dart:collection';
 import 'package:flutter_app/model/db/db_proxy.dart';
+import 'package:flutter_app/model/service/task_command/invert_task_done.dart';
+import 'package:flutter_app/model/service/task_command/task_command.dart';
 import 'package:flutter_app/model/service/tasks_trees.dart';
 import 'package:flutter_app/model/types/task.dart';
 
@@ -10,12 +13,12 @@ class TaskDataService {
   final DBProxy _dbProxy;
 
   ///id => task
-  final Map<int, Task> _tasks;
+  final Map<int, Task> _tasks = {};
   final TasksTrees _trees;
+  //TaskCommandのスタック(undo用)
+  final Queue<TaskCommand> _commands = Queue();
 
-  TaskDataService(this._token, this._dbProxy)
-      : _tasks = {},
-        _trees = TasksTrees();
+  TaskDataService(this._token, this._dbProxy) : _trees = TasksTrees();
 
   Future<void> initTasks() async {
     final tasksList = await _dbProxy.getAllTasks(_token);
@@ -39,24 +42,22 @@ class TaskDataService {
 
   //このタスクがタップされた(完了と非完了の入れ替え)時の処理
   void onTaskDoneInvert(int id) {
-    var task = _tasks[id]!;
-    if (task.done) {
-      //自分と親のチェックを外していく
-      while (true) {
-        task.done = false;
-        var parentId = task.parentId;
-        if (parentId != null) {
-          task = _tasks[parentId]!;
-        } else {
-          break;
-        }
+    _executeTaskCommand(InvertTaskDone(id));
+  }
+
+  void _executeTaskCommand(TaskCommand command) {
+    var updated = command.execute(_tasks, _trees);
+    if (updated) {
+      if (_commands.length == 3) {
+        _commands.removeLast();
       }
-    } else {
-      //子の側のチェック
-      var childs = _trees.doAllChildsSatisfy(id, (p0) => p0.done);
-      if (childs) {
-        task.done = true;
-      }
+      _commands.addFirst(command);
+    }
+  }
+
+  void undo() {
+    if (_commands.isNotEmpty) {
+      _commands.removeFirst().undo(_tasks, _trees);
     }
   }
 
