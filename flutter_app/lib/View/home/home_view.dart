@@ -26,18 +26,54 @@ class HomeView extends StatelessWidget {
             TasksScrollList(
                 context.watch<HomeViewModel>().getTasksScrollListItemInfos()),
             const Padding(padding: EdgeInsets.all(10.0)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                NormalButton('+', () {}, true),
-                NormalButton('全て完了', () {}, true),
-              ],
-            )
+            _buildBottomWidgets(context),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildBottomWidgets(BuildContext context) {
+    var children = <Widget>[];
+    if (!context.watch<HomeViewModel>().selectMode) {
+      children = [
+        NormalButton('+', () {}, true),
+        _buildUndoButton(context),
+      ];
+    } else {
+      children = [
+        TextButton(
+            onPressed: _onBackButtonPressed(context),
+            child: const Icon(Icons.arrow_back)),
+      ];
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
+    );
+  }
+
+  Widget _buildUndoButton(BuildContext context) {
+    bool undoable = context.watch<HomeViewModel>().isUndoable();
+    return TextButton(
+      onPressed: undoable ? _onUndoButtonPressed(context) : null,
+      child: const Icon(
+        Icons.undo,
+      ),
+    );
+  }
+
+  void Function() _onBackButtonPressed(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().quitSelectMode();
+    };
+  }
+
+  void Function() _onUndoButtonPressed(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().undo();
+    };
   }
 }

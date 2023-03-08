@@ -21,11 +21,6 @@ class TasksScrollListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
-      Checkbox(
-        value: context.select(
-            (HomeViewModel model) => model.getTaskCheckboxValue(_info.id)),
-        onChanged: _onCheckboxChanged(context),
-      ),
       Padding(padding: EdgeInsets.only(left: _paddingPerDepth * _info.depth)),
     ];
     var iconData = _getExpandIconData(context);
@@ -37,23 +32,21 @@ class TasksScrollListItem extends StatelessWidget {
     }
     children.add(GestureDetector(
       onTap: _onTaskTapped(context),
+      onLongPress: _onTaskLongPressed(context),
       child: _getTaskTitleText(),
     ));
     var taskLimitText = _getTaskLimitText();
     if (taskLimitText != null) {
       children.add(taskLimitText);
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      children: children,
+    return Container(
+      decoration: _getWholeContainerDecoration(context),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: children,
+      ),
     );
-  }
-
-  void Function(bool?) _onCheckboxChanged(BuildContext context) {
-    return (v) {
-      context.read<HomeViewModel>().setTaskCheckboxValue(_info.id, v ?? false);
-    };
   }
 
   void Function() _onExpandTapped(BuildContext context) {
@@ -65,6 +58,12 @@ class TasksScrollListItem extends StatelessWidget {
   void Function() _onTaskTapped(BuildContext context) {
     return () {
       context.read<HomeViewModel>().onTasksScrollListItemTapped(_info.id);
+    };
+  }
+
+  void Function() _onTaskLongPressed(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().onTasksScrollListItemLongPressed(_info.id);
     };
   }
 
@@ -107,5 +106,22 @@ class TasksScrollListItem extends StatelessWidget {
       );
     }
     return null;
+  }
+
+  Decoration? _getWholeContainerDecoration(BuildContext context) {
+    if (!context.read<HomeViewModel>().selectMode) {
+      return null;
+    } else {
+      var selected =
+          context.select((HomeViewModel model) => model.isSelected(_info.id));
+      if (selected) {
+        return const BoxDecoration(
+          color: Colors.lightBlue,
+          borderRadius: BorderRadius.all(Radius.circular(2.0)),
+        );
+      } else {
+        return null;
+      }
+    }
   }
 }

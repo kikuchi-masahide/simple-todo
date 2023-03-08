@@ -74,6 +74,10 @@ class TaskDataService {
     }
   }
 
+  bool isUndoable() {
+    return _commands.isNotEmpty;
+  }
+
   void _notifyListeners() {
     for (var listener in _listeners) {
       listener();
