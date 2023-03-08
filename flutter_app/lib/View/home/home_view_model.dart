@@ -14,6 +14,9 @@ class HomeViewModel extends ChangeNotifier {
   void initTaskDataService() {
     if (!_initTaskDataService) {
       _initTaskDataService = true;
+      _taskDataService.registerListener(() {
+        notifyListeners();
+      });
       _taskDataService.initTasks().then((_) {
         _taskDataService.iterateTaskTrees((task, _) {
           _taskCheckboxValue[task.id] = false;
@@ -64,8 +67,6 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void onTasksScrollListItemTapped(int id) {
-    //TODO:_taskDataServiceに変更を加えたならば、その内部からnotifyListeners()を発するべき やはりProviderにTaskDataServiceを加えるべきか?
     _taskDataService.onTaskDoneInvert(id);
-    notifyListeners();
   }
 }

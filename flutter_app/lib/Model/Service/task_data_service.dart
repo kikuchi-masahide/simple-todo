@@ -5,6 +5,9 @@ import 'package:flutter_app/model/service/task_command/task_command.dart';
 import 'package:flutter_app/model/service/tasks_trees.dart';
 import 'package:flutter_app/model/types/task.dart';
 
+///TaskDataServiceのデータ変更を受け取る関数
+typedef Listener = void Function();
+
 /**
  * 単一のトークンに対するデータ処理
  */
@@ -17,6 +20,7 @@ class TaskDataService {
   final TasksTrees _trees;
   //TaskCommandのスタック(undo用)
   final Queue<TaskCommand> _commands = Queue();
+  final List<Listener> _listeners = [];
 
   TaskDataService(this._token, this._dbProxy) : _trees = TasksTrees();
 
@@ -27,6 +31,13 @@ class TaskDataService {
     }
     _trees.init(_tasks);
     _trees.sortWith(_limitAscSort);
+    _notifyListeners();
+  }
+
+  ///DataServiceのデータが変更された際notifyを受け取る関数を登録
+  ///(依存注入をやめTaskDataServiceをProviderとして登録しても、TaskDataServiceのnotifyListenersをHomeViewModelは受け取れない)
+  void registerListener(Listener listener) {
+    _listeners.add(listener);
   }
 
   ///全Task eのコピーに対して木構造の深さ優先でfunc(e,深さ)を実行
@@ -52,12 +63,20 @@ class TaskDataService {
         _commands.removeLast();
       }
       _commands.addFirst(command);
+      _notifyListeners();
     }
   }
 
   void undo() {
     if (_commands.isNotEmpty) {
       _commands.removeFirst().undo(_tasks, _trees);
+      _notifyListeners();
+    }
+  }
+
+  void _notifyListeners() {
+    for (var listener in _listeners) {
+      listener();
     }
   }
 
