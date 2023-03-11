@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:flutter_app/model/db/db_proxy.dart';
+import 'package:flutter_app/model/service/task_command/done_selected_tasks.dart';
 import 'package:flutter_app/model/service/task_command/invert_task_done.dart';
 import 'package:flutter_app/model/service/task_command/task_command.dart';
 import 'package:flutter_app/model/service/tasks_trees.dart';
@@ -54,6 +55,11 @@ class TaskDataService {
   //このタスクがタップされた(完了と非完了の入れ替え)時の処理
   void onTaskDoneInvert(int id) {
     _executeTaskCommand(InvertTaskDone(id));
+  }
+
+  //渡されたIDのタスクを全てを完了にする
+  void doneSelectedTasks(Set<int> ids) {
+    _executeTaskCommand(DoneSelectedTasks(ids));
   }
 
   void _executeTaskCommand(TaskCommand command) {

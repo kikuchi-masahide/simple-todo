@@ -67,6 +67,9 @@ class HomeViewModel extends ChangeNotifier {
     } else {
       if (_selectedTaskID.contains(id)) {
         _selectedTaskID.remove(id);
+        if (_selectedTaskID.isEmpty) {
+          _selectMode = false;
+        }
       } else {
         _selectedTaskID.add(id);
       }
@@ -78,6 +81,11 @@ class HomeViewModel extends ChangeNotifier {
     _selectMode = true;
     _selectedTaskID.add(id);
     notifyListeners();
+  }
+
+  void onDoneSelectedTasksButtonPressed() {
+    _taskDataService.doneSelectedTasks(_selectedTaskID);
+    quitSelectMode();
   }
 
   void quitSelectMode() {

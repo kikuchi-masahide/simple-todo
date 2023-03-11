@@ -45,6 +45,13 @@ class HomeView extends StatelessWidget {
         TextButton(
             onPressed: _onBackButtonPressed(context),
             child: const Icon(Icons.arrow_back)),
+        TextButton(
+          onPressed: _onDoneSelectedTasksButtonPressed(context),
+          child: Text(
+            '全て完了',
+            style: TextStyle(fontSize: 20.0),
+          ),
+        )
       ];
     }
     return Row(
@@ -74,6 +81,12 @@ class HomeView extends StatelessWidget {
   void Function() _onUndoButtonPressed(BuildContext context) {
     return () {
       context.read<HomeViewModel>().undo();
+    };
+  }
+
+  void Function() _onDoneSelectedTasksButtonPressed(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().onDoneSelectedTasksButtonPressed();
     };
   }
 }
