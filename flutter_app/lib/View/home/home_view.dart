@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/view/component/labeled_icon_button.dart';
 import 'package:flutter_app/view/component/normal_button.dart';
 import 'package:flutter_app/view/component/tasks_scroll_list.dart';
 import 'package:flutter_app/view/home/home_view_model.dart';
@@ -37,21 +38,15 @@ class HomeView extends StatelessWidget {
     var children = <Widget>[];
     if (!context.watch<HomeViewModel>().selectMode) {
       children = [
-        NormalButton('+', () {}, true),
+        LabeledIconButton(Icons.add, '追加', () {}, true),
         _buildUndoButton(context),
       ];
     } else {
       children = [
-        TextButton(
-            onPressed: _onBackButtonPressed(context),
-            child: const Icon(Icons.arrow_back)),
-        TextButton(
-          onPressed: _onDoneSelectedTasksButtonPressed(context),
-          child: Text(
-            '全て完了',
-            style: TextStyle(fontSize: 20.0),
-          ),
-        )
+        LabeledIconButton(
+            Icons.arrow_back, '戻る', _onBackButtonPressed(context), true),
+        LabeledIconButton(Icons.done_all, '全て完了',
+            _onDoneSelectedTasksButtonPressed(context), true),
       ];
     }
     return Row(
@@ -64,12 +59,8 @@ class HomeView extends StatelessWidget {
 
   Widget _buildUndoButton(BuildContext context) {
     bool undoable = context.watch<HomeViewModel>().isUndoable();
-    return TextButton(
-      onPressed: undoable ? _onUndoButtonPressed(context) : null,
-      child: const Icon(
-        Icons.undo,
-      ),
-    );
+    return LabeledIconButton(
+        Icons.undo, '戻す', _onUndoButtonPressed(context), undoable);
   }
 
   void Function() _onBackButtonPressed(BuildContext context) {
