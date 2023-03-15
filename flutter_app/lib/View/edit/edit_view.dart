@@ -30,7 +30,7 @@ class EditView extends StatelessWidget {
             _buildLimitSelector(context),
             Padding(
               padding: const EdgeInsets.all(40.0),
-              child: TaskDropdownButton(info.allParents, info.parentID),
+              child: TaskDropdownButton(info.allParents),
             ),
           ],
         ),

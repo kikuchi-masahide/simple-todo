@@ -5,9 +5,8 @@ import 'package:provider/provider.dart';
 
 class TaskDropdownButton extends StatelessWidget {
   final List<TaskDropdownButtonItemInfo> _infos;
-  final int? _initialID;
 
-  const TaskDropdownButton(this._infos, this._initialID, {super.key});
+  const TaskDropdownButton(this._infos, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,7 @@ class TaskDropdownButton extends StatelessWidget {
         const Padding(padding: EdgeInsets.only(left: 10.0, right: 10.0)),
         DropdownButton(
           items: _infos.map((e) => _getTaskDropdownButtonItem(e)).toList(),
-          value: _initialID,
+          value: context.watch<EditViewModel>().parentID,
           onChanged: (id) {
             context.read<EditViewModel>().parentID = id;
           },

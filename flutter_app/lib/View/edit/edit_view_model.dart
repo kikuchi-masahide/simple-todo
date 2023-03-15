@@ -25,9 +25,11 @@ class EditViewModel extends ChangeNotifier {
       var task = _taskDataService.getTaskData(_id!);
       _limitCheckboxValue = task.limit != null;
       _limit = task.limit;
+      _parentID = task.parentId;
     } else {
       _limitCheckboxValue = false;
       _limit = null;
+      _parentID = null;
     }
     _taskDataService.registerListener(() {
       notifyListeners();
@@ -49,8 +51,7 @@ class EditViewModel extends ChangeNotifier {
       }
       return true;
     });
-    return EditViewInfo(
-        task?.title ?? '', task?.limit, parentInfos, task?.parentId);
+    return EditViewInfo(task?.title ?? '', parentInfos);
   }
 
   ///(日時設定ダイアログを開く可能性があるためBuildContextを受け取る)
