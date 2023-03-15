@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/view/component/labeled_icon_button.dart';
-import 'package:flutter_app/view/component/normal_button.dart';
 import 'package:flutter_app/view/component/tasks_scroll_list.dart';
 import 'package:flutter_app/view/home/home_view_model.dart';
 import 'package:provider/provider.dart';
