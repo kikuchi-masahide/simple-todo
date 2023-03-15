@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/model/service/task_data_service.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_expand.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_info.dart';
+import 'package:flutter_app/view/edit/edit_view_provider.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final TaskDataService _taskDataService;
@@ -102,5 +103,14 @@ class HomeViewModel extends ChangeNotifier {
 
   bool isUndoable() {
     return _taskDataService.isUndoable();
+  }
+
+  Future<void> navigateToEditPage(BuildContext context, int? id) async {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditViewProvider(_taskDataService, id),
+        ));
+    return;
   }
 }

@@ -37,7 +37,9 @@ class HomeView extends StatelessWidget {
     var children = <Widget>[];
     if (!context.watch<HomeViewModel>().selectMode) {
       children = [
-        LabeledIconButton(Icons.add, '追加', () {}, true),
+        LabeledIconButton(Icons.add, '追加', () {
+          context.read<HomeViewModel>().navigateToEditPage(context, null);
+        }, true),
         _buildUndoButton(context),
       ];
     } else {

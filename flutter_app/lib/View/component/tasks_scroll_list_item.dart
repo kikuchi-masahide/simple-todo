@@ -39,6 +39,7 @@ class TasksScrollListItem extends StatelessWidget {
     if (taskLimitText != null) {
       children.add(taskLimitText);
     }
+    children.add(_buildEditModeButton(context));
     return Container(
       decoration: _getWholeContainerDecoration(context),
       child: Row(
@@ -123,5 +124,18 @@ class TasksScrollListItem extends StatelessWidget {
         return null;
       }
     }
+  }
+
+  Widget _buildEditModeButton(BuildContext context) {
+    return GestureDetector(
+      onTap: _onEditModeButtonTapped(context),
+      child: const Icon(Icons.more_vert),
+    );
+  }
+
+  void Function() _onEditModeButtonTapped(BuildContext context) {
+    return () {
+      context.read<HomeViewModel>().navigateToEditPage(context, _info.id);
+    };
   }
 }

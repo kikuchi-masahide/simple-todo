@@ -62,6 +62,10 @@ class TaskDataService {
     _executeTaskCommand(DoneSelectedTasks(ids));
   }
 
+  Task getTaskData(int id) {
+    return Task.copy(_tasks[id]!);
+  }
+
   void _executeTaskCommand(TaskCommand command) {
     var updated = command.execute(_tasks, _trees);
     if (updated) {
