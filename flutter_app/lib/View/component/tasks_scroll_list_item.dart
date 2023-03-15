@@ -10,6 +10,7 @@ class TasksScrollListItem extends StatelessWidget {
   static const _paddingPerDepth = 20.0;
   static const _expandIconYes = Icons.expand_more;
   static const _expandIconNo = Icons.chevron_right;
+  static const _expandIconNone = Icons.remove;
   static const _taskTitleFontSize = 20.0;
   static const _taskTitleColorLimitExceeded = Colors.grey;
   static const _taskTitleColorLimitNonexceeded = Colors.black;
@@ -76,7 +77,7 @@ class TasksScrollListItem extends StatelessWidget {
     } else if (expand == TasksScrollListItemExpand.no) {
       return _expandIconNo;
     } else {
-      return null;
+      return _expandIconNone;
     }
   }
 
