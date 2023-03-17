@@ -8,7 +8,8 @@ class HomeViewModel extends ChangeNotifier {
   final TaskDataService _taskDataService;
   bool _initTaskDataService = false;
   final Set<int> _selectedTaskID = {};
-  final _taskExpand = <int, TasksScrollListItemExpand>{};
+  //偶数回タップでfalse(閉じた状態),奇数回タップでtrue(開いた状態)
+  final _taskExpand = <int, bool>{};
   bool _selectMode = false;
 
   HomeViewModel(this._taskDataService);
@@ -16,16 +17,12 @@ class HomeViewModel extends ChangeNotifier {
   void initTaskDataService() {
     if (!_initTaskDataService) {
       _initTaskDataService = true;
-      _taskDataService.registerListener(() {
+      _taskDataService.registerListener(hashCode, () {
         notifyListeners();
       });
       _taskDataService.initTasks().then((_) {
         _taskDataService.iterateTaskTrees((task, _) {
-          if (_taskDataService.hasChilds(task.id)) {
-            _taskExpand[task.id] = TasksScrollListItemExpand.no;
-          } else {
-            _taskExpand[task.id] = TasksScrollListItemExpand.none;
-          }
+          _taskExpand[task.id] = false;
           return true;
         });
         notifyListeners();
@@ -33,12 +30,19 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  @override
+  void dispose() {
+    _taskDataService.unregisterListener(hashCode);
+    super.dispose();
+  }
+
   List<TasksScrollListItemInfo> getTasksScrollListItemInfos() {
     List<TasksScrollListItemInfo> ret = [];
     _taskDataService.iterateTaskTrees((task, depth) {
       ret.add(TasksScrollListItemInfo(
           task.id, task.title, task.done, task.limit, depth));
-      return _taskExpand[task.id] == TasksScrollListItemExpand.yes;
+      return getTasksScrollListItemExpand(task.id) ==
+          TasksScrollListItemExpand.yes;
     });
     return ret;
   }
@@ -48,18 +52,22 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   TasksScrollListItemExpand getTasksScrollListItemExpand(int id) {
-    return _taskExpand[id]!;
+    if (!_taskDataService.hasChilds(id)) {
+      return TasksScrollListItemExpand.none;
+    }
+    if (_taskExpand[id]!) {
+      return TasksScrollListItemExpand.yes;
+    } else {
+      return TasksScrollListItemExpand.no;
+    }
   }
 
   void onTasksScrollListItemExpandTapped(int id) {
-    TasksScrollListItemExpand old = _taskExpand[id]!;
-    if (old == TasksScrollListItemExpand.yes) {
-      _taskExpand[id] = TasksScrollListItemExpand.no;
-      notifyListeners();
-    } else if (old == TasksScrollListItemExpand.no) {
-      _taskExpand[id] = TasksScrollListItemExpand.yes;
-      notifyListeners();
+    if (!_taskDataService.hasChilds(id)) {
+      return;
     }
+    _taskExpand[id] = !_taskExpand[id]!;
+    notifyListeners();
   }
 
   void onTasksScrollListItemTapped(int id) {

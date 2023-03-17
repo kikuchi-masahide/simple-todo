@@ -14,10 +14,11 @@ class EditView extends StatelessWidget {
   Widget build(BuildContext context) {
     var info = context.read<EditViewModel>().getEditViewInfo();
     _titleController.text = info.title;
+    var editMode = context.read<EditViewModel>().getEditMode();
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _getAppBarTitle(context.read<EditViewModel>().getEditMode()),
+          _getAppBarTitle(editMode),
           style: const TextStyle(fontSize: 24.0),
         ),
       ),
@@ -32,6 +33,13 @@ class EditView extends StatelessWidget {
               padding: const EdgeInsets.all(40.0),
               child: TaskDropdownButton(info.allParents),
             ),
+            LabeledIconButton(
+                Icons.check,
+                _getSaveButtonLabel(editMode),
+                context
+                    .read<EditViewModel>()
+                    .onSaveButtonTapped(context, _titleController),
+                true)
           ],
         ),
       ),
@@ -44,6 +52,15 @@ class EditView extends StatelessWidget {
         return '新規作成';
       case EditMode.edit:
         return '編集';
+    }
+  }
+
+  String _getSaveButtonLabel(EditMode editMode) {
+    switch (editMode) {
+      case EditMode.create:
+        return '新規作成';
+      case EditMode.edit:
+        return '保存';
     }
   }
 

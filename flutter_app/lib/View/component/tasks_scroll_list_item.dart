@@ -71,7 +71,7 @@ class TasksScrollListItem extends StatelessWidget {
 
   IconData? _getExpandIconData(BuildContext context) {
     var expand =
-        context.read<HomeViewModel>().getTasksScrollListItemExpand(_info.id);
+        context.watch<HomeViewModel>().getTasksScrollListItemExpand(_info.id);
     if (expand == TasksScrollListItemExpand.yes) {
       return _expandIconYes;
     } else if (expand == TasksScrollListItemExpand.no) {

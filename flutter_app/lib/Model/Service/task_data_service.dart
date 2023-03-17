@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'package:flutter_app/model/db/db_proxy.dart';
+import 'package:flutter_app/model/service/task_command/create_task.dart';
 import 'package:flutter_app/model/service/task_command/done_selected_tasks.dart';
+import 'package:flutter_app/model/service/task_command/edit_task.dart';
 import 'package:flutter_app/model/service/task_command/invert_task_done.dart';
 import 'package:flutter_app/model/service/task_command/task_command.dart';
 import 'package:flutter_app/model/service/tasks_trees.dart';
@@ -9,9 +11,7 @@ import 'package:flutter_app/model/types/task.dart';
 ///TaskDataServiceのデータ変更を受け取る関数
 typedef Listener = void Function();
 
-/**
- * 単一のトークンに対するデータ処理
- */
+///単一のトークンに対するデータ処理
 class TaskDataService {
   final String _token;
   final DBProxy _dbProxy;
@@ -21,7 +21,7 @@ class TaskDataService {
   final TasksTrees _trees;
   //TaskCommandのスタック(undo用)
   final Queue<TaskCommand> _commands = Queue();
-  final List<Listener> _listeners = [];
+  final Map<int, Listener> _listeners = {};
 
   TaskDataService(this._token, this._dbProxy) : _trees = TasksTrees();
 
@@ -37,8 +37,12 @@ class TaskDataService {
 
   ///DataServiceのデータが変更された際notifyを受け取る関数を登録
   ///(依存注入をやめTaskDataServiceをProviderとして登録しても、TaskDataServiceのnotifyListenersをHomeViewModelは受け取れない)
-  void registerListener(Listener listener) {
-    _listeners.add(listener);
+  void registerListener(int key, Listener listener) {
+    _listeners[key] = listener;
+  }
+
+  void unregisterListener(int key) {
+    _listeners.remove(key);
   }
 
   ///全Task eのコピーに対して木構造の深さ優先でfunc(e,深さ)を実行
@@ -66,6 +70,16 @@ class TaskDataService {
     return Task.copy(_tasks[id]!);
   }
 
+  ///task.idのidを持つTaskをアップデート
+  void updateTask(int id, String title, DateTime? limit, int? parentID) {
+    _executeTaskCommand(EditTask(id, title, limit, parentID));
+  }
+
+  ///新しくタスクを作成
+  void createTask(String title, DateTime? limit, int? parentID) {
+    _executeTaskCommand(CreateTask(title, limit, parentID));
+  }
+
   void _executeTaskCommand(TaskCommand command) {
     var updated = command.execute(_tasks, _trees);
     if (updated) {
@@ -89,7 +103,7 @@ class TaskDataService {
   }
 
   void _notifyListeners() {
-    for (var listener in _listeners) {
+    for (var listener in _listeners.values) {
       listener();
     }
   }

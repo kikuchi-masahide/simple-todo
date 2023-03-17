@@ -31,9 +31,15 @@ class EditViewModel extends ChangeNotifier {
       _limit = null;
       _parentID = null;
     }
-    _taskDataService.registerListener(() {
+    _taskDataService.registerListener(hashCode, () {
       notifyListeners();
     });
+  }
+
+  @override
+  void dispose() {
+    _taskDataService.unregisterListener(hashCode);
+    super.dispose();
   }
 
   EditMode getEditMode() {
@@ -68,5 +74,18 @@ class EditViewModel extends ChangeNotifier {
       _limit = d;
       notifyListeners();
     });
+  }
+
+  void Function() onSaveButtonTapped(
+      BuildContext context, TextEditingController controller) {
+    return () {
+      var title = controller.text;
+      if (_id == null) {
+        _taskDataService.createTask(title, _limit, _parentID);
+      } else {
+        _taskDataService.updateTask(_id!, title, _limit, _parentID);
+      }
+      Navigator.pop(context);
+    };
   }
 }
