@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/model/types/home_message_type.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_expand.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_info.dart';
 import 'package:flutter_app/view/home/home_view_model.dart';
@@ -136,7 +137,16 @@ class TasksScrollListItem extends StatelessWidget {
 
   void Function() _onEditModeButtonTapped(BuildContext context) {
     return () {
-      context.read<HomeViewModel>().navigateToEditPage(context, _info.id);
+      context
+          .read<HomeViewModel>()
+          .navigateToEditPage(context, _info.id)
+          .then((value) {
+        if (value) {
+          context
+              .read<HomeViewModel>()
+              .changeHomeMessage(HomeMessageType.success, 'タスクを編集しました');
+        }
+      });
     };
   }
 }

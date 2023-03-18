@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/service/task_data_service.dart';
+import 'package:flutter_app/model/types/home_message_type.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_expand.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_info.dart';
 import 'package:flutter_app/view/edit/edit_view_provider.dart';
+import 'package:tuple/tuple.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final TaskDataService _taskDataService;
@@ -11,6 +13,8 @@ class HomeViewModel extends ChangeNotifier {
   //偶数回タップでfalse(閉じた状態),奇数回タップでtrue(開いた状態)
   final _taskExpand = <int, bool>{};
   bool _selectMode = false;
+  HomeMessageType _homeMessageType = HomeMessageType.none;
+  String? _homeMessage = null;
 
   HomeViewModel(this._taskDataService);
 
@@ -113,12 +117,27 @@ class HomeViewModel extends ChangeNotifier {
     return _taskDataService.isUndoable();
   }
 
-  Future<void> navigateToEditPage(BuildContext context, int? id) async {
-    Navigator.push(
+  ///編集ページへ移行する　編集/新規作成が行われたか否かはFutureの返り値で判断
+  Future<bool> navigateToEditPage(BuildContext context, int? id) async {
+    bool? result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => EditViewProvider(_taskDataService, id),
         ));
-    return;
+    return result ?? false;
+  }
+
+  Tuple2<HomeMessageType, String?> getHomeMessage() {
+    return Tuple2(_homeMessageType, _homeMessage);
+  }
+
+  void changeHomeMessage(HomeMessageType type, String? message) {
+    _homeMessageType = type;
+    _homeMessage = message;
+    notifyListeners();
+  }
+
+  void closeHomeMessage() {
+    changeHomeMessage(HomeMessageType.none, null);
   }
 }

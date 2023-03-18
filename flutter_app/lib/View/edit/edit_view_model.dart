@@ -85,7 +85,7 @@ class EditViewModel extends ChangeNotifier {
       } else {
         _taskDataService.updateTask(_id!, title, _limit, _parentID);
       }
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     };
   }
 }
