@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/service/task_data_service.dart';
 import 'package:flutter_app/model/types/home_message_type.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_app/view/edit/edit_view_provider.dart';
 import 'package:tuple/tuple.dart';
 
 class HomeViewModel extends ChangeNotifier {
+  static const _autoUploadDuration = Duration(minutes: 3);
   final TaskDataService _taskDataService;
   bool _initTaskDataService = false;
   final Set<int> _selectedTaskID = {};
@@ -15,8 +18,15 @@ class HomeViewModel extends ChangeNotifier {
   bool _selectMode = false;
   HomeMessageType _homeMessageType = HomeMessageType.none;
   String? _homeMessage;
+  //_autoUploadDurationごとに自動アップロードを行う タイムアップの場合complete(true),手動アップロードが行われた場合complete(false)を行い、タイマーリスタート
+  late Completer<bool> _autoUploadCompleter;
+  //自動アップロードまたは手動アップロード中はtrue その間アップロードボタンを使用不可に
+  bool _isUploading = false;
+  bool get isUploading => _isUploading;
 
-  HomeViewModel(this._taskDataService);
+  HomeViewModel(this._taskDataService) {
+    _regenerateAutoUploadFuture();
+  }
 
   void initTaskDataService() {
     if (!_initTaskDataService) {
@@ -141,13 +151,41 @@ class HomeViewModel extends ChangeNotifier {
     changeHomeMessage(HomeMessageType.none, null);
   }
 
-  void upload(BuildContext context) {
+  void onUploadButtonTapped(BuildContext context) {
+    _isUploading = true;
+    notifyListeners();
+    //自動アップロードのタイマーを中断しCompleter再生成
+    _autoUploadCompleter.complete(false);
     _taskDataService.upload().then((_) {
       changeHomeMessage(HomeMessageType.success, 'アップロードに成功しました');
     }).catchError((err) {
       changeHomeMessage(HomeMessageType.notice, 'アップロードに失敗しました:${err.message}');
     }).whenComplete(() {
-      Navigator.pop(context);
+      _isUploading = false;
+    });
+  }
+
+  void _regenerateAutoUploadFuture() {
+    _autoUploadCompleter = Completer<bool>();
+    _autoUploadCompleter.future.then((v) {
+      if (v) {
+        _isUploading = true;
+        notifyListeners();
+        //手動アップロードによるタイマーリセットに巻き込まれないよう、一応別でFutureを生成
+        _taskDataService.upload().then((_) {
+          changeHomeMessage(HomeMessageType.success, '自動アップロード完了');
+        }).catchError((err) {
+          changeHomeMessage(
+              HomeMessageType.notice, '自動アップロード失敗:${err.message}');
+        }).whenComplete(() {
+          _isUploading = false;
+        });
+      }
+    }).whenComplete(() {
+      _regenerateAutoUploadFuture();
+    });
+    Future.delayed(_autoUploadDuration, () {
+      _autoUploadCompleter.complete(true);
     });
   }
 }

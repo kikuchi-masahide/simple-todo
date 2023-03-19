@@ -83,6 +83,13 @@ class HomeView extends StatelessWidget {
   }
 
   Drawer _buildDrawer(BuildContext context) {
+    var isUploading = context.watch<HomeViewModel>().isUploading;
+    var textColor = isUploading ? Colors.grey : Colors.black;
+    var onTap = isUploading
+        ? null
+        : () {
+            context.read<HomeViewModel>().onUploadButtonTapped(context);
+          };
     return Drawer(
       child: ListView(
         shrinkWrap: true,
@@ -90,10 +97,11 @@ class HomeView extends StatelessWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.arrow_circle_up),
-            title: const Text('アップロード'),
-            onTap: () {
-              context.read<HomeViewModel>().upload(context);
-            },
+            title: Text(
+              'アップロード',
+              style: TextStyle(color: textColor),
+            ),
+            onTap: onTap,
           )
         ],
       ),

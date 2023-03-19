@@ -99,8 +99,8 @@ class TaskDataService {
   }
 
   Future<void> upload() async {
-    _tasks.removeWhere((key, value) => value.done);
-    await _dbProxy.upload(_token, _tasks.values.toList());
+    await _dbProxy.upload(
+        _token, _tasks.values.where((task) => !task.done).toList());
   }
 
   bool isUndoable() {
