@@ -14,7 +14,7 @@ class HomeViewModel extends ChangeNotifier {
   final _taskExpand = <int, bool>{};
   bool _selectMode = false;
   HomeMessageType _homeMessageType = HomeMessageType.none;
-  String? _homeMessage = null;
+  String? _homeMessage;
 
   HomeViewModel(this._taskDataService);
 
@@ -139,5 +139,15 @@ class HomeViewModel extends ChangeNotifier {
 
   void closeHomeMessage() {
     changeHomeMessage(HomeMessageType.none, null);
+  }
+
+  void upload(BuildContext context) {
+    _taskDataService.upload().then((_) {
+      changeHomeMessage(HomeMessageType.success, 'アップロードに成功しました');
+    }).catchError((err) {
+      changeHomeMessage(HomeMessageType.notice, 'アップロードに失敗しました:${err.message}');
+    }).whenComplete(() {
+      Navigator.pop(context);
+    });
   }
 }

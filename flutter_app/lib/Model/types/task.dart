@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Task {
   final int id;
   String title;
@@ -17,4 +19,14 @@ class Task {
         limit = task.limit,
         parentId = task.parentId,
         done = task.done;
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'limit': limit != null
+          ? DateFormat('yyyy-MM-dd HH:mm:ss').format(limit!)
+          : null,
+      'parent_id': parentId,
+    };
+  }
 }

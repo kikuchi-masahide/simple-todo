@@ -52,6 +52,7 @@ class HomeMessageBox extends StatelessWidget {
           const Icon(Icons.done),
           Text(
             message ?? '',
+            softWrap: true,
           ),
         ],
       ));
@@ -64,6 +65,7 @@ class HomeMessageBox extends StatelessWidget {
           const Icon(Icons.sentiment_dissatisfied),
           Text(
             message ?? '',
+            softWrap: true,
           ),
         ],
       ));

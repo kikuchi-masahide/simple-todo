@@ -6,8 +6,7 @@ import 'package:flutter_app/model/db/db_proxy.dart';
 import 'package:flutter_app/model/db/local_file_io.dart';
 
 class LocalDB extends DBProxy with LocalFileIO {
-  static const _tokenLifespan = const Duration(minutes: 1);
-  // static const _tokenLifespan = const Duration(days: 1);
+  static const _tokenLifespan = Duration(days: 1);
 
   LocalDB();
 
@@ -50,6 +49,12 @@ class LocalDB extends DBProxy with LocalFileIO {
     final id = await _getUserIDFromToken(token);
     final tasks = await _readUserTasksFile(id);
     return tasks;
+  }
+
+  @override
+  Future<void> upload(String token, List<Task> tasks) async {
+    var id = await _getUserIDFromToken(token);
+    await writeFile('local_db/$id.json', tasks);
   }
 
   Future<List<User>> _readUsersFile() async {

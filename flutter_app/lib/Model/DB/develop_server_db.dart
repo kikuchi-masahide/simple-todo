@@ -36,4 +36,7 @@ class DevelopServerDB extends DBProxy with LaravelConnect {
     final tasks = resObj.map((e) => Task.fromJson(e)).toList();
     return tasks;
   }
+
+  @override
+  Future<void> upload(String token, List<Task> tasks) async {}
 }

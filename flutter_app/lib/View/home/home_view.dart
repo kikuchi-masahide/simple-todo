@@ -13,31 +13,33 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<HomeViewModel>().initTaskDataService();
     return Scaffold(
-        appBar: AppBar(
-            title: const Text(
-          'ホーム',
-          style: TextStyle(fontSize: 24.0),
-        )),
-        body: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(30.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  TasksScrollList(context
-                      .watch<HomeViewModel>()
-                      .getTasksScrollListItemInfos()),
-                  const Padding(padding: EdgeInsets.all(10.0)),
-                  _buildBottomWidgets(context),
-                ],
-              ),
+      appBar: AppBar(
+          title: const Text(
+        'ホーム',
+        style: TextStyle(fontSize: 24.0),
+      )),
+      body: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TasksScrollList(context
+                    .watch<HomeViewModel>()
+                    .getTasksScrollListItemInfos()),
+                const Padding(padding: EdgeInsets.all(10.0)),
+                _buildBottomWidgets(context),
+              ],
             ),
-            HomeMessageBox(),
-          ],
-        ));
+          ),
+          const HomeMessageBox(),
+        ],
+      ),
+      drawer: _buildDrawer(context),
+    );
   }
 
   Widget _buildBottomWidgets(BuildContext context) {
@@ -78,6 +80,24 @@ class HomeView extends StatelessWidget {
     bool undoable = context.watch<HomeViewModel>().isUndoable();
     return LabeledIconButton(
         Icons.undo, '戻す', _onUndoButtonPressed(context), undoable);
+  }
+
+  Drawer _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(20.0),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.arrow_circle_up),
+            title: const Text('アップロード'),
+            onTap: () {
+              context.read<HomeViewModel>().upload(context);
+            },
+          )
+        ],
+      ),
+    );
   }
 
   void Function() _onBackButtonPressed(BuildContext context) {
