@@ -39,4 +39,7 @@ class DevelopServerDB extends DBProxy with LaravelConnect {
 
   @override
   Future<void> upload(String token, List<Task> tasks) async {}
+
+  @override
+  Future<void> logout(String token) async {}
 }

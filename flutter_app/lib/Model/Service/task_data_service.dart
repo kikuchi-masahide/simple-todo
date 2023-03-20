@@ -14,6 +14,7 @@ typedef Listener = void Function();
 ///単一のトークンに対するデータ処理
 class TaskDataService {
   final String _token;
+  String get token => _token;
   final DBProxy _dbProxy;
 
   ///id => task

@@ -57,6 +57,13 @@ class LocalDB extends DBProxy with LocalFileIO {
     await writeFile('local_db/$id.json', tasks);
   }
 
+  @override
+  Future<void> logout(String token) async {
+    var tokens = await _readTokensFile();
+    tokens.remove(token);
+    writeFile('local_db/tokens.json', tokens);
+  }
+
   Future<List<User>> _readUsersFile() async {
     final fileObj = await readFile('local_db/users.json') as List;
     return fileObj.map<User>((json) => User.fromJson(json)).toList();

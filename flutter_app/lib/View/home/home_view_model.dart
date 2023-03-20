@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app/model/service/auth_service.dart';
 import 'package:flutter_app/model/service/task_data_service.dart';
 import 'package:flutter_app/model/types/home_message_type.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_expand.dart';
 import 'package:flutter_app/model/types/tasks_scroll_list_item_info.dart';
 import 'package:flutter_app/view/edit/edit_view_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -23,6 +25,8 @@ class HomeViewModel extends ChangeNotifier {
   //自動アップロードまたは手動アップロード中はtrue その間アップロードボタンを使用不可に
   bool _isUploading = false;
   bool get isUploading => _isUploading;
+  bool _isLogouting = false;
+  bool get isLogouting => _isLogouting;
 
   HomeViewModel(this._taskDataService) {
     _regenerateAutoUploadFuture();
@@ -163,6 +167,13 @@ class HomeViewModel extends ChangeNotifier {
     }).whenComplete(() {
       _isUploading = false;
     });
+  }
+
+  Future<void> onLogoutButtonTapped(BuildContext context) {
+    _isLogouting = true;
+    _isUploading = true;
+    notifyListeners();
+    return context.read<AuthService>().logout(_taskDataService.token);
   }
 
   void _regenerateAutoUploadFuture() {

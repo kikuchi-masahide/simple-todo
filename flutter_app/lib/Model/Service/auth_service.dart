@@ -16,4 +16,8 @@ class AuthService extends ChangeNotifier {
     final token = await _dbProxy.register(email, password);
     return TaskDataService(token, _dbProxy);
   }
+
+  Future<void> logout(String token) async {
+    await _dbProxy.logout(token);
+  }
 }

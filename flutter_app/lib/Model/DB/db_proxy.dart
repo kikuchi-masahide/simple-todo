@@ -6,4 +6,5 @@ abstract class DBProxy extends ChangeNotifier {
   Future<String> register(String email, String password);
   Future<List<Task>> getAllTasks(String token);
   Future<void> upload(String token, List<Task> tasks);
+  Future<void> logout(String token);
 }

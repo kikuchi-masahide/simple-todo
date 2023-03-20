@@ -84,11 +84,23 @@ class HomeView extends StatelessWidget {
 
   Drawer _buildDrawer(BuildContext context) {
     var isUploading = context.watch<HomeViewModel>().isUploading;
-    var textColor = isUploading ? Colors.grey : Colors.black;
-    var onTap = isUploading
+    var isLogouting = context.watch<HomeViewModel>().isLogouting;
+    var textColor = isUploading || isLogouting ? Colors.grey : Colors.black;
+    var onUploadTap = isUploading
         ? null
         : () {
             context.read<HomeViewModel>().onUploadButtonTapped(context);
+          };
+    var onLogoutTap = isUploading || isLogouting
+        ? null
+        : () {
+            context
+                .read<HomeViewModel>()
+                .onLogoutButtonTapped(context)
+                .then((_) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/login', (route) => false);
+            });
           };
     return Drawer(
       child: ListView(
@@ -101,7 +113,15 @@ class HomeView extends StatelessWidget {
               'アップロード',
               style: TextStyle(color: textColor),
             ),
-            onTap: onTap,
+            onTap: onUploadTap,
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: Text(
+              'ログアウト',
+              style: TextStyle(color: textColor),
+            ),
+            onTap: onLogoutTap,
           )
         ],
       ),
