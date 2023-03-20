@@ -7,6 +7,8 @@ class DevelopServerDB extends DBProxy with LaravelConnect {
   static const _loginPath = 'api/login';
   static const _registerPath = 'api/register';
   static const _indexPath = 'api/index';
+  static const _uploadPath = 'api/update';
+  static const _logoutPath = 'api/logout';
 
   @override
   Future<String> login(String email, String password) async {
@@ -38,8 +40,18 @@ class DevelopServerDB extends DBProxy with LaravelConnect {
   }
 
   @override
-  Future<void> upload(String token, List<Task> tasks) async {}
+  Future<void> upload(String token, List<Task> tasks) async {
+    final reqObj = {
+      'tasks': tasks
+          .where((task) => !task.done)
+          .map((task) => task.toJson())
+          .toList(),
+    };
+    await post(_host, _uploadPath, reqObj, token);
+  }
 
   @override
-  Future<void> logout(String token) async {}
+  Future<void> logout(String token) async {
+    await post(_host, _logoutPath, {}, token);
+  }
 }

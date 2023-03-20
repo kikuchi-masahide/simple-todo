@@ -20,13 +20,16 @@ class Task {
         parentId = task.parentId,
         done = task.done;
   Map<String, dynamic> toJson() {
-    return {
+    var ret = {
       'id': id,
       'title': title,
-      'limit': limit != null
-          ? DateFormat('yyyy-MM-dd HH:mm:ss').format(limit!)
-          : null,
-      'parent_id': parentId,
     };
+    if (limit != null) {
+      ret['limit'] = DateFormat('yyyy-MM-dd HH:mm:ss').format(limit!);
+    }
+    if (parentId != null) {
+      ret['parent_id'] = parentId!;
+    }
+    return ret;
   }
 }
