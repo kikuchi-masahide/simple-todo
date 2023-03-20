@@ -6,6 +6,7 @@ use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Service\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -32,5 +33,10 @@ class UserController extends Controller
         }
     }
 
+    public function UserLogout(): JsonResponse
+    {
+        $this->userService->logout();
+        return response()->json();
+    }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
@@ -44,5 +45,10 @@ class UserService
         $user->password = bcrypt($password);
         $user->save();
         return $user->createToken('device')->plainTextToken;
+    }
+
+    public function logout(): void
+    {
+        Auth::guard('sanctum')->user()->tokens()->delete();
     }
 }

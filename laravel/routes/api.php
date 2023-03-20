@@ -19,4 +19,6 @@ Route::post('/register', [App\Http\Controllers\UserController::class, "UserRegis
 
 Route::middleware(App\Http\Middleware\OriginalAuth::class)->group(function () {
     Route::get('/index', [App\Http\Controllers\TaskController::class, 'index']);
+    Route::post('/update', [App\Http\Controllers\TaskController::class, 'update']);
+    Route::post('/logout', [App\Http\Controllers\UserController::class, 'UserLogout']);
 });
